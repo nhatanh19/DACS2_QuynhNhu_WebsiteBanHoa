@@ -1,43 +1,25 @@
 <?php
-
 /*
  * CKFinder Configuration File
- *
- * For the official documentation visit https://ckeditor.com/docs/ckfinder/ckfinder3-php/
  */
 
-/*============================ PHP Error Reporting ====================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/debugging.html
-
-// Production
+// Disable error reporting for production
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 ini_set('display_errors', 0);
 
-// Development
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-
-/*============================ General Settings =======================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html
-
+// Create config array
 $config = array();
 
-/*============================ Enable PHP Connector HERE ==============================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_authentication
-
-$config['authentication'] = function () {
+// Enable authentication - always return true for admin area
+$config['authentication'] = function() {
     return true;
 };
 
-/*============================ License Key ============================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_licenseKey
-
+// Set license key (free for testing)
 $config['licenseName'] = '';
 $config['licenseKey']  = '';
 
-/*============================ CKFinder Internal Directory ============================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_privateDir
-
+// Configure private directory for CKFinder
 $config['privateDir'] = array(
     'backend' => 'default',
     'tags'   => '.ckfinder/tags',
@@ -46,88 +28,69 @@ $config['privateDir'] = array(
     'thumbs' => '.ckfinder/cache/thumbs',
 );
 
-/*============================ Images and Thumbnails ==================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_images
-
+// Configure image settings
 $config['images'] = array(
-    'maxWidth'  => 1600,
-    'maxHeight' => 1200,
-    'quality'   => 80,
+    'maxWidth'  => 0, // 0 = không giới hạn
+    'maxHeight' => 0, // 0 = không giới hạn
+    'quality'   => 85,
     'sizes' => array(
-        'small'  => array('width' => 480, 'height' => 320, 'quality' => 80),
-        'medium' => array('width' => 600, 'height' => 480, 'quality' => 80),
-        'large'  => array('width' => 800, 'height' => 600, 'quality' => 80)
+        'small'  => array('width' => 480, 'height' => 320, 'quality' => 85),
+        'medium' => array('width' => 800, 'height' => 600, 'quality' => 85),
+        'large'  => array('width' => 1200, 'height' => 800, 'quality' => 85)
     )
 );
 
-/*=================================== Backends ========================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_backends
-
+// Configure the main file storage
 $config['backends'][] = array(
     'name'         => 'default',
     'adapter'      => 'local',
-    'baseUrl'      => '/ckfinder/userfiles/',
-//  'root'         => '', // Can be used to explicitly set the CKFinder user files directory.
-    'chmodFiles'   => 0777,
+    'baseUrl'      => '/QuynhNhu/DoAnWebBanHoa/admin/uploads/',
+    'root'         => '', // Auto-detect
+    'chmodFiles'   => 0644,
     'chmodFolders' => 0755,
-    'filesystemEncoding' => 'UTF-8',
+    'filesystemEncoding' => 'UTF-8'
 );
 
-/*================================ Resource Types =====================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_resourceTypes
-
+// Configure default resource type
 $config['defaultResourceTypes'] = '';
 
+// Configure available resource types - chỉ dùng một resource type
 $config['resourceTypes'][] = array(
-    'name'              => 'Files', // Single quotes not allowed.
-    'directory'         => 'files',
-    'maxSize'           => 0,
-    'allowedExtensions' => '7z,aiff,asf,avi,bmp,csv,doc,docx,fla,flv,gif,gz,gzip,jpeg,jpg,mid,mov,mp3,mp4,mpc,mpeg,mpg,ods,odt,pdf,png,ppt,pptx,qt,ram,rar,rm,rmi,rmvb,rtf,sdc,swf,sxc,sxw,tar,tgz,tif,tiff,txt,vsd,wav,webp,wma,wmv,xls,xlsx,zip',
+    'name'              => 'Files', // Tên hiển thị trong CKFinder
+    'directory'         => '/', // Sử dụng thư mục gốc
+    'maxSize'           => 0, // 0 = không giới hạn dung lượng
+    'allowedExtensions' => 'bmp,gif,jpeg,jpg,png,7z,aiff,asf,avi,bmp,csv,doc,docx,fla,flv,gif,gz,gzip,jpeg,jpg,mid,mov,mp3,mp4,mpc,mpeg,mpg,ods,odt,pdf,png,ppt,pptx,qt,ram,rar,rm,rmi,rmvb,rtf,sdc,swf,sxc,sxw,tar,tgz,tif,tiff,txt,vsd,wav,wma,wmv,xls,xlsx,zip',
     'deniedExtensions'  => '',
-    'backend'           => 'default'
+    'backend'          => 'default'
 );
 
-$config['resourceTypes'][] = array(
-    'name'              => 'Images',
-    'directory'         => 'images',
-    'maxSize'           => 0,
-    'allowedExtensions' => 'bmp,gif,jpeg,jpg,png,webp',
-    'deniedExtensions'  => '',
-    'backend'           => 'default'
-);
-
-/*================================ Access Control =====================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_roleSessionVar
-
+// Configure access control
 $config['roleSessionVar'] = 'CKFinder_UserRole';
 
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_accessControl
+// Grant full access to the admin
 $config['accessControl'][] = array(
     'role'                => '*',
     'resourceType'        => '*',
-    'folder'              => '/',
+    'folder'             => '/',
 
-    'FOLDER_VIEW'         => true,
-    'FOLDER_CREATE'       => true,
-    'FOLDER_RENAME'       => true,
-    'FOLDER_DELETE'       => true,
+    'FOLDER_VIEW'        => true,
+    'FOLDER_CREATE'      => true,
+    'FOLDER_RENAME'      => true,
+    'FOLDER_DELETE'      => true,
 
-    'FILE_VIEW'           => true,
-    'FILE_CREATE'         => true,
-    'FILE_RENAME'         => true,
-    'FILE_DELETE'         => true,
+    'FILE_VIEW'          => true,
+    'FILE_CREATE'        => true,
+    'FILE_RENAME'        => true,
+    'FILE_DELETE'        => true,
 
-    'IMAGE_RESIZE'        => true,
-    'IMAGE_RESIZE_CUSTOM' => true
+    'IMAGE_RESIZE'       => true,
+    'IMAGE_RESIZE_CUSTOM'=> true
 );
 
-
-/*================================ Other Settings =====================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html
-
+// Security settings
 $config['overwriteOnUpload'] = false;
 $config['checkDoubleExtension'] = true;
-$config['disallowUnsafeCharacters'] = false;
+$config['disallowUnsafeCharacters'] = true;
 $config['secureImageUploads'] = true;
 $config['checkSizeAfterScaling'] = true;
 $config['htmlExtensions'] = array('html', 'htm', 'xml', 'js');
@@ -136,45 +99,31 @@ $config['hideFiles'] = array('.*');
 $config['forceAscii'] = false;
 $config['xSendfile'] = false;
 
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_debug
+// Debug settings
 $config['debug'] = false;
 
-/*==================================== Plugins ========================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_plugins
-
+// Plugin settings
 $config['pluginsDirectory'] = __DIR__ . '/plugins';
 $config['plugins'] = array();
 
-/*================================ Cache settings =====================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_cache
-
+// Cache settings
 $config['cache'] = array(
     'imagePreview' => 24 * 3600,
     'thumbnails'   => 24 * 3600 * 365,
     'proxyCommand' => 0
 );
 
-/*============================ Temp Directory settings ================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_tempDirectory
-
+// Temp directory settings
 $config['tempDirectory'] = sys_get_temp_dir();
 
-/*============================ Session Cause Performance Issues =======================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_sessionWriteClose
-
+// Session settings
 $config['sessionWriteClose'] = true;
 
-/*================================= CSRF protection ===================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_csrfProtection
-
+// CSRF protection
 $config['csrfProtection'] = true;
 
-/*===================================== Headers =======================================*/
-// https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_headers
-
+// Headers
 $config['headers'] = array();
 
-/*============================== End of Configuration =================================*/
-
-// Config must be returned - do not change it.
+// Return the configuration
 return $config;

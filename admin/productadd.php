@@ -60,10 +60,16 @@
 <script>
     // Replace the <textarea id="editor1"> with a CKEditor 4
     // instance, using default configuration.
-    CKEDITOR.replace( 'editor1' , {
-filebrowserBrowseUrl: 'ckfinder/ckfinder.html',
-filebrowserUploadUrl: 'ckfinder/core/connector/php/connector.php?command=QuickUpLoad&type=Files'  
-    }); 
+    CKEDITOR.replace('editor1', {
+        filebrowserBrowseUrl: 'ckfinder/ckfinder.html',
+        filebrowserImageBrowseUrl: 'ckfinder/ckfinder.html?type=Images',
+        filebrowserFlashBrowseUrl: 'ckfinder/ckfinder.html?type=Flash',
+        filebrowserUploadUrl: 'ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files',
+        filebrowserImageUploadUrl: 'ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images',
+        filebrowserFlashUploadUrl: 'ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Flash',
+        height: 300,
+        removeButtons: 'PasteFromWord'
+    });
 </script>
 
 <script>
