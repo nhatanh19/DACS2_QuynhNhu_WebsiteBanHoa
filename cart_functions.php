@@ -68,7 +68,7 @@ function removeFromCart($product_id) {
             unset($_SESSION['cart'][$product_id]);
         }
         
-        return ['success' => true, 'message' => 'Xóa khỏi giỏ hàng thành công'];
+        return ['success' => true, 'message' => 'Xóa sản phẩm thành công'];
     } catch (Exception $e) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
@@ -76,7 +76,6 @@ function removeFromCart($product_id) {
 
 // Lấy tổng số sản phẩm trong giỏ hàng
 function getCartCount() {
-    initCart();
     return array_sum($_SESSION['cart']);
 }
 
@@ -87,8 +86,8 @@ function getCartItems($conn) {
     
     foreach ($_SESSION['cart'] as $product_id => $quantity) {
         try {
-            $stmt = $conn->prepare("SELECT id, name, price, image_url FROM products WHERE id = ?");
-            $stmt->execute([$product_id]);
+            $stmt = $conn->prepare("SELECT id, name, price, image_url FROM products WHERE id = :product_id");
+            $stmt->execute(['product_id' => $product_id]);
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($product) {

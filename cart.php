@@ -216,13 +216,11 @@ $cartTotal = $totalResult['success'] ? $totalResult['total'] : 0;
                                 <span>Miễn phí</span>
                             </div>
                             <hr>
-                            <div class="d-flex justify-content-between mb-4">
-                                <span>Tổng cộng:</span>
-                                <strong class="cart-total"><?php echo number_format($cartTotal * 1.1, 0, ',', '.'); ?>đ</strong>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Tổng tiền:</span>
+                                <span class="fw-bold fs-5"><?php echo number_format($cartTotal, 0, ',', '.'); ?> VNĐ</span>
                             </div>
-                            <a href="checkout.php" class="btn btn-primary w-100">
-                                Tiến hành thanh toán
-                            </a>
+                            <a href="checkout.php" class="btn btn-primary w-100">Tiến hành thanh toán</a>
                         </div>
                     </div>
                 </div>
