@@ -1,6 +1,10 @@
-<?php include './layout/header.php'; ?>
+<?php 
+require_once 'cart_functions.php';
+require_once 'database.php';
+$pdo = require 'database.php';
 
-<main class="container" style="margin-top: 100px;">
+include './layout/header.php'; ?>
+<main class="container">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -11,10 +15,6 @@
     </nav>
 
     <?php
-    // Database connection
-    require_once 'database.php';
-    $pdo = require 'database.php';
-
     // Get product ID from URL
     $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -29,7 +29,6 @@
         exit;
     }
     ?>
-
     <!-- Product Details -->
     <div class="row">
         <!-- Product Image -->
@@ -46,29 +45,13 @@
 
             <!-- Product Options -->
             <form id="purchase-form" class="mb-4">
-                <div class="form-group mb-3">
-                    <label for="color">Màu sắc:</label>
-                    <select class="form-select" id="color" name="color" required>
-                        <option value="pink">Hồng</option>
-                        <option value="white">Trắng</option>
-                    </select>
-                </div>
-
                 <div class="form-group mb-4">
                     <label for="quantity">Số lượng:</label>
                     <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="<?php echo $product['stock']; ?>" value="1" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary mb-3 w-100">MUA HÀNG</button>
-
-                <div class="contact-buttons">
-                    <button type="button" class="btn btn-outline-secondary mb-2 w-100">TÌM TẠI CỬA HÀNG</button>
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary flex-fill mx-1">Hotline</button>
-                        <button type="button" class="btn btn-outline-secondary flex-fill mx-1">Chat</button>
-                        <button type="button" class="btn btn-outline-secondary flex-fill mx-1">Mail</button>
-                    </div>
-                </div>
+                <button type="button" onclick="addToCart(<?php echo $product['id']; ?>)" class="btn btn-secondary mb-3 w-100">THÊM VÀO GIỎ HÀNG</button>
+                <a href="checkout.php?id=<?php echo $product['id']; ?>&quantity=" onclick="this.href += document.getElementById('quantity').value" class="btn btn-primary mb-3 w-100">MUA NGAY</a>
             </form>
 
             <!-- Product Details Accordion -->
@@ -121,7 +104,7 @@
             ?>
                     <div class="col-md-3 col-6 mb-4">
                         <div class="card h-100">
-                            <img src="<?php echo htmlspecialchars($related['image_url']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($related['name']); ?>">
+                            <img style="height: 70%;" src="<?php echo htmlspecialchars($related['image_url']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($related['name']); ?>">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($related['name']); ?></h5>
                                 <p class="card-text"><?php echo number_format($related['price'], 0, ',', '.'); ?>đ</p>
@@ -169,25 +152,29 @@
 </style>
 
 <script>
-    document.getElementById('purchase-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const quantity = document.getElementById('quantity').value;
-        const color = document.getElementById('color').value;
-
-        // Add to cart logic here
-        alert('Đã thêm vào giỏ hàng: ' + quantity + ' sản phẩm, màu ' + color);
-    });
-
-    // Quantity input validation
-    document.getElementById('quantity').addEventListener('change', function(e) {
-        const max = parseInt(this.getAttribute('max'));
-        const min = parseInt(this.getAttribute('min'));
-        const value = parseInt(this.value);
-
-        if (value > max) this.value = max;
-        if (value < min) this.value = min;
-    });
+function addToCart(productId) {
+    const quantity = document.getElementById('quantity').value;
+    fetch('cart.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            action: 'add',
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Sản phẩm đã được thêm vào giỏ hàng!');
+        } else {
+            alert('Có lỗi xảy ra, vui lòng thử lại!');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
 </script>
 
 <?php include './layout/footer.php'; ?>

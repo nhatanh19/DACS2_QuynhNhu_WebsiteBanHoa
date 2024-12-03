@@ -1,6 +1,3 @@
-<?php
-require_once __DIR__ . '/../includes/session.php';
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -68,6 +65,7 @@ require_once __DIR__ . '/../includes/session.php';
 </head>
 
 <body>
+    <?php session_start(); ?>
     <header style="height: 70px;">
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">

@@ -46,7 +46,7 @@
 
 <body>
     <?php
-    include './layout/header.php';
+    include './layout/new_header.php';
     ?>
     <!-- Carousel -->
     <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel" style="margin-top: 76px;">
@@ -86,7 +86,7 @@
                         <img src="img/hoa1.jpg" class="card-img-top img-fluid" alt="Hoa sinh nhật">
                         <div class="card-body text-center">
                             <h5 class="card-title">Hoa sinh nhật</h5>
-                            <a href="#" class="btn btn-outline-primary">Xem thêm</a>
+                            <a href="./cartegory.php?category=1" class="btn btn-outline-primary">Xem thêm</a>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                         <img src="img/hoa2.jpg" class="card-img-top" alt="Hoa cưới">
                         <div class="card-body text-center">
                             <h5 class="card-title">Hoa cưới</h5>
-                            <a href="#" class="btn btn-outline-primary">Xem thêm</a>
+                            <a href="./cartegory.php?category=2" class="btn btn-outline-primary">Xem thêm</a>
                         </div>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                         <img src="img/hoa3.jpg" class="card-img-top" alt="Hoa kỷ niệm">
                         <div class="card-body text-center">
                             <h5 class="card-title">Hoa kỷ niệm</h5>
-                            <a href="#" class="btn btn-outline-primary">Xem thêm</a>
+                            <a href="./cartegory.php?category=3" class="btn btn-outline-primary">Xem thêm</a>
                         </div>
                     </div>
                 </div>

@@ -5,6 +5,7 @@
         background-color: #333;
         color: white;
         padding: 40px 0 20px;
+        margin-top: 100px;
     }
 
     .footer a {
