@@ -127,7 +127,7 @@ function getCartTotal($conn) {
 function clearCart() {
     try {
         $_SESSION['cart'] = [];
-        return ['success' => true, 'message' => 'Xóa toàn bộ giỏ hàng thành công'];
+        return ['success' => true, 'message' => 'Đã xóa giỏ hàng'];
     } catch (Exception $e) {
         return ['success' => false, 'message' => $e->getMessage()];
     }

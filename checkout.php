@@ -59,45 +59,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
     $address = $_POST['address'];
     $note = $_POST['note'] ?? '';
     
-    // Thêm đơn hàng mới cho mỗi sản phẩm trong giỏ hàng
-    $success = true;
-    foreach ($cartItems as $item) {
-        $sql = "INSERT INTO orders (product_id, quantity, total_amount, customer_name, phone, email, address, note, status) 
-                VALUES (:product_id, :quantity, :total_amount, :customer_name, :phone, :email, :address, :note, :status)";
-        
-        $stmt = $conn->prepare($sql);
-        $itemTotal = $item['price'] * $item['quantity'];
-        
-        $params = [
-            ':product_id' => $item['id'],
-            ':quantity' => $item['quantity'],
-            ':total_amount' => $itemTotal,
-            ':customer_name' => $customerName,
-            ':phone' => $phone,
-            ':email' => $email,
-            ':address' => $address,
-            ':note' => $note,
-            ':status' => 'pending'
-        ];
-        
-        // In ra câu truy vấn SQL đầy đủ với các giá trị
-        $debug_query = $sql;
-        foreach ($params as $key => $value) {
-            $debug_query = str_replace($key, "'$value'", $debug_query);
-        }
-        echo "<pre>Debug SQL Query: " . $debug_query . "</pre>";
-        
-        if (!$stmt->execute($params)) {
-            $success = false;
-            break;
-        }
+    // Validate input
+    $errors = [];
+    if (empty($customerName)) $errors[] = "Vui lòng nhập họ tên";
+    if (empty($phone)) $errors[] = "Vui lòng nhập số điện thoại";
+    if (empty($email)) $errors[] = "Vui lòng nhập email";
+    if (empty($address)) $errors[] = "Vui lòng nhập địa chỉ";
+    
+    if (!empty($errors)) {
+        $_SESSION['checkout_errors'] = $errors;
+        header('Location: checkout.php');
+        exit();
     }
     
-    if ($success) {
+    try {
+        $conn->beginTransaction();
+        
+        // Tính tổng tiền
+        $totalAmount = 0;
+        foreach ($cartItems as $item) {
+            $totalAmount += $item['price'] * $item['quantity'];
+        }
+        
+        // Tạo đơn hàng mới
+        $sql = "INSERT INTO orders (user_id, total_amount, customer_name, phone, email, address, note, status) 
+                VALUES (:user_id, :total_amount, :customer_name, :phone, :email, :address, :note, :status)";
+        
+        $stmt = $conn->prepare($sql);
+        $status = 'pending';
+        
+        $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':total_amount', $totalAmount, PDO::PARAM_STR);
+        $stmt->bindParam(':customer_name', $customerName, PDO::PARAM_STR);
+        $stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->bindParam(':address', $address, PDO::PARAM_STR);
+        $stmt->bindParam(':note', $note, PDO::PARAM_STR);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+        
+        $stmt->execute();
+        $orderId = $conn->lastInsertId();
+        
+        // Thêm chi tiết đơn hàng
+        foreach ($cartItems as $item) {
+            $sql = "INSERT INTO order_details (order_id, product_id, quantity, price, subtotal) 
+                    VALUES (:order_id, :product_id, :quantity, :price, :subtotal)";
+            
+            $stmt = $conn->prepare($sql);
+            $subtotal = $item['price'] * $item['quantity'];
+            
+            $stmt->bindParam(':order_id', $orderId, PDO::PARAM_INT);
+            $stmt->bindParam(':product_id', $item['id'], PDO::PARAM_INT);
+            $stmt->bindParam(':quantity', $item['quantity'], PDO::PARAM_INT);
+            $stmt->bindParam(':price', $item['price'], PDO::PARAM_STR);
+            $stmt->bindParam(':subtotal', $subtotal, PDO::PARAM_STR);
+            
+            $stmt->execute();
+        }
+        
         // Xóa giỏ hàng sau khi đặt hàng thành công
         clearCart();
-        header("Location: order-success.php");
-        exit;
+        
+        $conn->commit();
+        
+        // Lưu order_id vào session và chuyển hướng
+        $_SESSION['order_id'] = $orderId;
+        header('Location: thank_you.php');
+        exit();
+        
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $_SESSION['checkout_errors'] = ["Có lỗi xảy ra: " . $e->getMessage()];
+        header('Location: checkout.php');
+        exit();
     }
 }
 ?>

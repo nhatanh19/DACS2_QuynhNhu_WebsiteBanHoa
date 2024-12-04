@@ -25,10 +25,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Tạo đơn hàng
-        $stmt = $conn->prepare("INSERT INTO orders (product_id, quantity, total_amount, customer_name, phone, email, address, note, status) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+        $sql = "INSERT INTO orders (user_id, product_id, quantity, total_amount, customer_name, phone, email, address, note, status) 
+                VALUES (:user_id, :product_id, :quantity, :total_amount, :customer_name, :phone, :email, :address, :note, :status)";
+        
+        $stmt = $conn->prepare($sql);
         $total_amount = $product['price'] * $quantity;
-        $stmt->execute([$product_id, $quantity, $total_amount, $fullname, $phone, $email, $address, $note]);
+        $status = 'pending';
+        
+        $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+        $stmt->bindParam(':quantity', $quantity, PDO::PARAM_INT);
+        $stmt->bindParam(':total_amount', $total_amount, PDO::PARAM_STR);
+        $stmt->bindParam(':customer_name', $fullname, PDO::PARAM_STR);
+        $stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->bindParam(':address', $address, PDO::PARAM_STR);
+        $stmt->bindParam(':note', $note, PDO::PARAM_STR);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+        
+        $stmt->execute();
 
         // Cập nhật số lượng tồn kho
         $stmt = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
