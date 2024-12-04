@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost:3306
--- Thời gian đã tạo: Th12 03, 2024 lúc 07:10 PM
+-- Thời gian đã tạo: Th12 04, 2024 lúc 05:29 AM
 -- Phiên bản máy phục vụ: 8.0.30
 -- Phiên bản PHP: 8.3.11
 
@@ -65,9 +65,8 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`) VALUES
 
 CREATE TABLE `orders` (
   `id` int NOT NULL,
-  `product_id` int NOT NULL,
-  `quantity` int NOT NULL,
-  `total_amount` decimal(10,2) NOT NULL,
+  `user_id` int NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
   `customer_name` varchar(255) NOT NULL,
   `phone` varchar(20) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -76,6 +75,31 @@ CREATE TABLE `orders` (
   `status` varchar(20) NOT NULL DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `orders`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `order_details`
+--
+
+CREATE TABLE `order_details` (
+  `id` int NOT NULL,
+  `order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `quantity` int NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `order_details`
+--
+
+
 
 -- --------------------------------------------------------
 
@@ -166,6 +190,10 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
+-- Đang đổ dữ liệu cho bảng `users`
+--
+
+--
 -- Chỉ mục cho các bảng đã đổ
 --
 
@@ -187,6 +215,14 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_orders_users` (`user_id`);
+
+--
+-- Chỉ mục cho bảng `order_details`
+--
+ALTER TABLE `order_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`),
   ADD KEY `product_id` (`product_id`);
 
 --
@@ -224,6 +260,12 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT cho bảng `order_details`
+--
+ALTER TABLE `order_details`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
@@ -236,7 +278,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
@@ -252,7 +294,14 @@ ALTER TABLE `cart`
 -- Các ràng buộc cho bảng `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
+  ADD CONSTRAINT `fk_orders_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Các ràng buộc cho bảng `order_details`
+--
+ALTER TABLE `order_details`
+  ADD CONSTRAINT `order_details_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `order_details_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
 
 --
 -- Các ràng buộc cho bảng `products`
