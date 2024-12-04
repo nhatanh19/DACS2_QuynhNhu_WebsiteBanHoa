@@ -35,8 +35,23 @@ CREATE TABLE `cart` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- --------------------------------------------------------
+-- CREATE TABLE IF NOT EXISTS `tbl_category` (
+--   `category_id` int(11) NOT NULL AUTO_INCREMENT,
+--   `category_name` varchar(255) NOT NULL,
+--   `category_desc` text,
+--   `category_status` tinyint(1) DEFAULT '1',
+--   PRIMARY KEY (`category_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+CREATE TABLE tbl_admin (
+    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_name VARCHAR(255) NOT NULL,
+    admin_email VARCHAR(255) NOT NULL UNIQUE,
+    admin_password VARCHAR(255) NOT NULL,
+    admin_role ENUM('admin', 'editor') DEFAULT 'editor',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 --
 -- Cấu trúc bảng cho bảng `categories`
 --
