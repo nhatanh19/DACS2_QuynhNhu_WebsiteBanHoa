@@ -21,7 +21,7 @@ class RegisterController {
             $district = trim($_POST['district'] ?? '');
             $ward = trim($_POST['ward'] ?? '');
             $specific_address = trim($_POST['specific_address'] ?? '');
-
+            
             // Validation
             if (empty($username)) {
                 $errors[] = "Tên người dùng là bắt buộc";

@@ -1,12 +1,16 @@
 <?php
 require_once './includes/session.php';
 require_once './database.php';
+require_once './controllers/OrderController.php';
 
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
+
+$orderController = new OrderController($conn);
+$orders = $orderController->getUserOrders($_SESSION['user_id']);
 
 // Lấy thông tin user
 $userId = $_SESSION['user_id'];
@@ -195,13 +199,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                                         <tr>
                                             <th>Mã đơn hàng</th>
                                             <th>Ngày đặt</th>
+                                            <th>Số sản phẩm</th>
                                             <th>Tổng tiền</th>
                                             <th>Trạng thái</th>
                                             <th>Chi tiết</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Thêm dữ liệu đơn hàng ở đây -->
+                                        <?php if (empty($orders)): ?>
+                                            <tr>
+                                                <td colspan="6" class="text-center">Chưa có đơn hàng nào</td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($orders as $order): ?>
+                                                <tr>
+                                                    <td>#<?php echo $order['id']; ?></td>
+                                                    <td><?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></td>
+                                                    <td><?php echo $order['total_items']; ?></td>
+                                                    <td><?php echo number_format($order['total_amount'], 0, ',', '.'); ?>đ</td>
+                                                    <td>
+                                                        <span class="badge bg-<?php echo $order['status'] == 'completed' ? 'success' : 'warning'; ?>">
+                                                            <?php echo $order['status'] == 'completed' ? 'Hoàn thành' : 'Đang xử lý'; ?>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-info" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#orderModal<?php echo $order['id']; ?>">
+                                                            Xem
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -211,6 +241,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
             </div>
         </div>
     </main>
+
+    <?php foreach ($orders as $order): 
+        $orderDetails = $orderController->getOrderDetails($order['id']);
+    ?>
+        <div class="modal fade" id="orderModal<?php echo $order['id']; ?>" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi tiết đơn hàng #<?php echo $order['id']; ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6>Thông tin đơn hàng</h6>
+                                <p><strong>Ngày đặt:</strong> <?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></p>
+                                <p><strong>Trạng thái:</strong> 
+                                    <span class="badge bg-<?php echo $order['status'] == 'completed' ? 'success' : 'warning'; ?>">
+                                        <?php echo $order['status'] == 'completed' ? 'Hoàn thành' : 'Đang xử lý'; ?>
+                                    </span>
+                                </p>
+                                <p><strong>Tổng tiền:</strong> <?php echo number_format($order['total_amount'], 0, ',', '.'); ?>đ</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Thông tin giao hàng</h6>
+                                <p><strong>Người nhận:</strong> <?php echo htmlspecialchars($order['customer_name']); ?></p>
+                                <p><strong>Số điện thoại:</strong> <?php echo htmlspecialchars($order['phone']); ?></p>
+                                <p><strong>Email:</strong> <?php echo htmlspecialchars($order['email']); ?></p>
+                                <p><strong>Địa chỉ:</strong> <?php echo htmlspecialchars($order['address']); ?></p>
+                                <?php if (!empty($order['note'])): ?>
+                                    <p><strong>Ghi chú:</strong> <?php echo htmlspecialchars($order['note']); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <h6>Chi tiết sản phẩm</h6>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Đơn giá</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($orderDetails['items'] as $item): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <?php if ($item['image_url']): ?>
+                                                        <img src="<?php echo htmlspecialchars($item['image_url']); ?>" 
+                                                             alt="<?php echo htmlspecialchars($item['product_name']); ?>"
+                                                             class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <?php endif; ?>
+                                                    <?php echo htmlspecialchars($item['product_name']); ?>
+                                                </div>
+                                            </td>
+                                            <td><?php echo number_format($item['price'], 0, ',', '.'); ?>đ</td>
+                                            <td><?php echo $item['quantity']; ?></td>
+                                            <td><?php echo number_format($item['subtotal'], 0, ',', '.'); ?>đ</td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                        <td><strong><?php echo number_format($order['total_amount'], 0, ',', '.'); ?>đ</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
 
     <?php include './layout/footer.php'; ?>
 

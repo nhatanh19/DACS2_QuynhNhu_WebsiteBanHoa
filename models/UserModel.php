@@ -6,8 +6,10 @@ class UserModel {
         $this->conn = $db;
     }
 
-    public function register($username, $email, $password, $phone, $address) {
+    public function register($username, $email, $password, $phone, $province, $district, $ward, $specific_address) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $address = $province . '- ' . $district . '- ' . $ward . '- ' . $specific_address;
+        
         
         $sql = "INSERT INTO users (username, email, password, phone, address) 
                 VALUES (?, ?, ?, ?, ?)";
